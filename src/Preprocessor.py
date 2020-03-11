@@ -65,14 +65,13 @@ class Preprocessor:
 
 
 if __name__ == "__main__":
-"""
     # To run this you will need download some nltk packages
 
-    nltk.download("punkt")
-    nltk.download("averaged_perceptron_tagger")
-    nltk.download("wordnet")
-    nltk.download("stopwords")
-"""
+    # nltk.download("punkt")
+    # nltk.download("averaged_perceptron_tagger")
+    # nltk.download("wordnet")
+    # nltk.download("stopwords")
+
     p = Preprocessor()
     print(p.process("../assets/articles/Why we fight about Iran"))
 
