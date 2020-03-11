@@ -48,17 +48,16 @@ class Preprocessor:
                 ]
 
 
-    def process(self, path: str):
+    def process(self, raw_text: str):
         """
             Takes path to a file and runs all methods on it's contents
             Returns a list of words
         """
-        with open(path, "r") as file:
-            self.raw_text = file.read().replace("\n", "")
-            self.strip_punctuation()
-            self.to_lower()
-            self.remove_stop_words()
-            self.lemmatize_verbs()
+        self.raw_text = raw_text
+        self.strip_punctuation()
+        self.to_lower()
+        self.remove_stop_words()
+        self.lemmatize_verbs()
 
         return self.processed
 
