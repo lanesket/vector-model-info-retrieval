@@ -140,3 +140,6 @@ cython_debug/
 # data
 *.csv
 *.txt
+
+# idea
+.idea
