@@ -1,6 +1,5 @@
 import pandas as pd
 from Preprocessor import Preprocessor
-from Article import Article
 
 
 # data from kaggle dataset https://www.kaggle.com/snapcrack/all-the-news
