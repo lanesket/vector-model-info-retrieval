@@ -3,56 +3,78 @@ import math
 
 
 class VectorModel:
-    @staticmethod
-    def vector_mapping(processed_path: str):
+    def __init__(self, processed_path: str):
+        self.processed_path = processed_path
+        self.doc_count = len(os.listdir(processed_path))
+        self.vector_mapping = self._vector_mapping()
+        self.tfs, self.dfs = self._generate_tfs_dfs()
+
+    def _vector_mapping(self):
         """
             Dict with word to its place in the vector
         """
         words = set()
-        for file in os.listdir(processed_path):
-            with open(f"{processed_path}/{file}", 'r') as f:
+        for file in os.listdir(self.processed_path):
+            with open(f"{self.processed_path}/{file}", 'r') as f:
                 text_words = f.readline().split(' ')
                 words = words.union(set(text_words))
 
         return dict(zip(words, range(len(words))))
 
-    @staticmethod
-    def tf(term: str, doc_path: str) -> int:
+    def _generate_tfs_dfs(self) -> dict:
+        """
+            Generates the dictionaries for tf and df
+        """
+        tfs, dfs = {}, {}
+
+        for file in os.listdir(self.processed_path):
+            doc_path = f"{self.processed_path}/{file}"
+            if doc_path not in tfs:
+                tfs[doc_path] = {}
+            with open(doc_path, 'r') as f:
+                text = f.readline()
+                terms = set(text.split())
+                for term in terms:
+                    tfs[doc_path][term] = text.count(term)
+
+                    if term not in dfs:
+                        dfs[term] = 1
+                    else:
+                        dfs[term] += 1
+
+        return tfs, dfs
+
+    def tf(self, term: str, doc_path: str) -> int:
         """
             Term frequency
             Number of times term (word) occured in doc
         """
-        with open(doc_path, 'r') as f:
-            text = f.readline()
-            return text.count(term)
+        return self.tfs[doc_path][term]
 
-    @staticmethod
-    def df(term: str, processed_path: str) -> int:
+    def df(self, term: str) -> int:
         """
             Document frequency
             Number of documents containing a term (word)
         """
-        count = 0
-        for file in os.listdir(processed_path):
-            with open(f"{processed_path}/{file}", 'r') as f:
-                if term in f.readline():
-                    count += 1
+        return self.dfs[term]
 
-        return count
-
-    @staticmethod
-    def idf(term: str, processed_path: str) -> float:
+    def idf(self, term: str) -> float:
         """
             Inverse document frequency
         """
-        doc_count = len(os.listdir(processed_path))
+        return math.log(self.doc_count / self.df(term))
 
-        return math.log(doc_count / VectorModel.df(term, processed_path))
+    def tf_idf_weight(self, term: str, doc_path: str) -> float:
+        return self.tf(term, doc_path) * self.idf(term)
 
 
 if __name__ == "__main__":
-    # print(VectorModel.vector_mapping('assets/articles/processed'))
-    # print(VectorModel.tf('star',
-    #                      'assets/articles/processed/‘Hidden Figures’ Ties ‘Rogue One’ at Box Office - The New York Times'))
-    # print(VectorModel.df('star', 'assets/articles/processed'))
-    # print(VectorModel.idf('star', 'assets/articles/processed'))
+    vm = VectorModel('assets/articles/processed')
+
+    print(vm.tf('star',
+                'assets/articles/processed/‘Hidden Figures’ Ties ‘Rogue One’ at Box Office - The New York Times'))
+
+    print(vm.df('star'))
+    print(vm.idf('star'))
+    print(vm.tf_idf_weight(
+        'star', 'assets/articles/processed/‘Hidden Figures’ Ties ‘Rogue One’ at Box Office - The New York Times'))
