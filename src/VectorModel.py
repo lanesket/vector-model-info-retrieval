@@ -1,14 +1,21 @@
+from typing import List
 import os
 import math
 import numpy as np
+import re
+from Preprocessor import Preprocessor
 
 
 class VectorModel:
     def __init__(self, processed_path: str):
         self.processed_path = processed_path
+
         self.doc_count = len(os.listdir(processed_path))
+
         self.vector_mapping = self._vector_mapping()
+
         self.num_terms = len(self.vector_mapping.keys())
+
         self.tfs, self.dfs = self._generate_tfs_dfs()
 
     def _vector_mapping(self) -> dict:
@@ -67,13 +74,26 @@ class VectorModel:
         """
         return math.log(self.doc_count / self.df(term))
 
+    def tf_query(self, term: str, query_words: List) -> int:
+        """
+            Term frequency for query
+            Number of times term occured in query
+        """
+        return query_words.count(term)
+
     def tf_idf_weight(self, term: str, doc_path: str) -> float:
         """
             Calculates the tf-idf weight for `term` in document with `doc_path`
         """
         return self.tf(term, doc_path) * self.idf(term)
 
-    def weights_for_doc(self, doc_path: str):
+    def tf_idf_weight_query(self, term: str, query_words: List) -> float:
+        """
+            Calculates the tf-idf weight for `term` in query consisting of `query_words`
+        """
+        return self.tf_query(term, query_words) * self.idf(term)
+
+    def weights_for_doc(self, doc_path: str) -> np.ndarray:
         """
             Creates the vector of tf-idf weights for document with `doc_path`
         """
@@ -87,7 +107,7 @@ class VectorModel:
 
         return weights
 
-    def generate_weights(self, weights_path: str):
+    def generate_weights(self, weights_path: str) -> None:
         """
             Saves the vectors for articles to `weights_path`
         """
@@ -97,8 +117,48 @@ class VectorModel:
             save_path = f"{weights_path}/{file}"
             np.save(save_path, weights)
 
+    def load_vectors(self, weights_path: str) -> dict:
+        """
+            Loads the vectors from `weights_path` and saves the to dict
+        """
+        vectors = {}
+        for file in os.listdir(weights_path):
+            v_path = f"{weights_path}/{file}"
+            res = re.search("(.+).npy", v_path)
+            # filename without extension
+            if res:
+                filename = res.group(1)
+
+                vectors[filename] = np.load(v_path)
+
+        return vectors
+
+    def query_vectorize(self, query_words: List) -> np.ndarray:
+        """
+            Takes the list of query words and created the vector from without explicitly provided weights
+        """
+        weights = np.zeros(shape=self.num_terms)
+        terms = set(query_words)
+
+        for term in terms:
+            index = self.vector_mapping[term]
+            weights[index] = self.tf_idf_weight_query(term, query_words)
+
+        return weights
+
+    def find_similar(self, vectors: dict, query_v: np.ndarray):
+        pass
+
 
 if __name__ == "__main__":
     vm = VectorModel('assets/articles/processed')
 
-    vm.generate_weights('assets/articles/vectors')
+    # vm.generate_weights('assets/articles/vectors')
+
+    vectors = vm.load_vectors('assets/articles/vector')
+
+    p = Preprocessor("assets/stop-words.txt")
+    query = "La La Lend"
+    processed_query = p.process(query)
+
+    query_vector = vm.query_vectorize(processed_query)
