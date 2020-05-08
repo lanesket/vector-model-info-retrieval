@@ -4,6 +4,7 @@ import math
 import numpy as np
 import re
 from Preprocessor import Preprocessor
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class VectorModel:
@@ -146,8 +147,25 @@ class VectorModel:
 
         return weights
 
-    def find_similar(self, vectors: dict, query_v: np.ndarray):
-        pass
+    def cossine_similarity(self, v1: np.ndarray, v2: np.ndarray) -> float:
+        # return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+        return cosine_similarity(v1, v2)[0][0]
+
+    def find_similar(self, vectors: dict, q_v: np.ndarray):
+        """
+            Find the similar using cosine similarity
+        """
+        # problem's here
+        # reshaping для sklearn, requires 2d array as input
+        w = q_v.shape[0]
+        q_v = q_v.reshape(1, w)
+        for fname, f_v in vectors.items():
+            fw = f_v.shape[0]
+            f_v = f_v.reshape((1, fw))
+            r = self.cossine_similarity(f_v, q_v)
+
+            if r != 0:
+                print(f"{r} : {fname}\n")
 
 
 if __name__ == "__main__":
@@ -155,10 +173,12 @@ if __name__ == "__main__":
 
     # vm.generate_weights('assets/articles/vectors')
 
-    vectors = vm.load_vectors('assets/articles/vector')
+    vectors = vm.load_vectors('assets/articles/vectors')
 
     p = Preprocessor("assets/stop-words.txt")
-    query = "La La Lend"
+    query = "Benjamin Netanyahu "
     processed_query = p.process(query)
 
     query_vector = vm.query_vectorize(processed_query)
+
+    vm.find_similar(vectors, query_vector)
