@@ -160,7 +160,7 @@ class VectorModel:
         return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
         # return cosine_similarity(v1, v2)[0][0]
 
-    def find_similar(self, vectors: dict, q_v: np.ndarray, k: int) -> str:
+    def find_similar(self, vectors: dict, q_v: np.ndarray, k: int) -> List:
         """
             Find the k similar documents using cosine similarity
         """
