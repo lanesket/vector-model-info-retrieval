@@ -164,6 +164,9 @@ class VectorModel:
         """
             Find the k similar documents using cosine similarity
         """
+        if not q_v.any():
+            return []
+
         sim_results = []
         doc_names = []
 
@@ -186,7 +189,7 @@ if __name__ == "__main__":
     vectors = vm.load_vectors('assets/articles/vectors')
 
     p = Preprocessor("assets/stop-words.txt")
-    query = "Iran cheburek"
+    query = "Star"
     processed_query = p.process(query)
 
     query_vector = vm.query_vectorize(processed_query)
