@@ -145,8 +145,11 @@ class VectorModel:
         terms = set(query_words)
 
         for term in terms:
-            index = self.vector_mapping[term]
-            weights[index] = self.tf_idf_weight_query(term, query_words)
+            if term not in self.vector_mapping:
+                continue
+            else:
+                index = self.vector_mapping[term]
+                weights[index] = self.tf_idf_weight_query(term, query_words)
 
         return weights
 
@@ -183,9 +186,9 @@ if __name__ == "__main__":
     vectors = vm.load_vectors('assets/articles/vectors')
 
     p = Preprocessor("assets/stop-words.txt")
-    query = "Benjamin Netanyahu "
+    query = "Iran cheburek"
     processed_query = p.process(query)
 
     query_vector = vm.query_vectorize(processed_query)
 
-    print(vm.find_similar(vectors, query_vector, 1))
+    print(vm.find_similar(vectors, query_vector, 5))
