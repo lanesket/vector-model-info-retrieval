@@ -5,6 +5,7 @@ import numpy as np
 import re
 from Preprocessor import Preprocessor
 from sklearn.metrics.pairwise import cosine_similarity
+import heapq
 
 
 class VectorModel:
@@ -155,21 +156,22 @@ class VectorModel:
         return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
         # return cosine_similarity(v1, v2)[0][0]
 
-    def find_similar(self, vectors: dict, q_v: np.ndarray) -> str:
+    def find_similar(self, vectors: dict, q_v: np.ndarray, k: int) -> str:
         """
-            Find the similar document using cosine similarity
+            Find the k similar documents using cosine similarity
         """
-        max_sim = 0
-        sim_doc_name = ""
+        sim_results = []
+        doc_names = []
 
         for fname, f_v in vectors.items():
             r = self.cosine_similarity(f_v, q_v)
+            if r:
+                sim_results.append(r)
+                doc_names.append(fname)
 
-            if r > max_sim:
-                max_sim = r
-                sim_doc_name = fname
-
-        return sim_doc_name
+        sim_results = np.array(sim_results)
+        indexes = heapq.nlargest(k, range(len(sim_results)), sim_results.take)
+        return [doc_names[i] for i in indexes]
 
 
 if __name__ == "__main__":
@@ -185,4 +187,4 @@ if __name__ == "__main__":
 
     query_vector = vm.query_vectorize(processed_query)
 
-    print(vm.find_similar(vectors, query_vector))
+    print(vm.find_similar(vectors, query_vector, 5))
