@@ -1,4 +1,4 @@
 nltk
 numpy
 pandas
-sqlite3
+Flask
