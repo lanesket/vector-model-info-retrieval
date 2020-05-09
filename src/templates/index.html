@@ -1,0 +1,12 @@
+<body>
+    <p>Query:</p>
+    <form method="post">
+        <input type="text" name="query">
+        <input type="submit" value="Search">
+    </form>
+    {% if qres %}
+        {% for r in qres %}
+            <p>{{ r }}!</p>
+        {% endfor %}
+    {% endif %}
+</body>
