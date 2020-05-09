@@ -23,6 +23,7 @@ class VectorModel:
         """
             Dict with word to its place in the vector
         """
+        # problem
         words = set()
         for file in os.listdir(self.processed_path):
             doc_path = f"{self.processed_path}/{file}"
@@ -147,31 +148,34 @@ class VectorModel:
 
         return weights
 
-    def cossine_similarity(self, v1: np.ndarray, v2: np.ndarray) -> float:
-        # return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-        return cosine_similarity(v1, v2)[0][0]
+    def cosine_similarity(self, v1: np.ndarray, v2: np.ndarray) -> float:
+        """
+            Calculates the angle between 2 vectors
+        """
+        return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+        # return cosine_similarity(v1, v2)[0][0]
 
-    def find_similar(self, vectors: dict, q_v: np.ndarray):
+    def find_similar(self, vectors: dict, q_v: np.ndarray) -> str:
         """
-            Find the similar using cosine similarity
+            Find the similar document using cosine similarity
         """
-        # problem's here
-        # reshaping для sklearn, requires 2d array as input
-        w = q_v.shape[0]
-        q_v = q_v.reshape(1, w)
+        max_sim = 0
+        sim_doc_name = ""
+
         for fname, f_v in vectors.items():
-            fw = f_v.shape[0]
-            f_v = f_v.reshape((1, fw))
-            r = self.cossine_similarity(f_v, q_v)
+            r = self.cosine_similarity(f_v, q_v)
 
-            if r != 0:
-                print(f"{r} : {fname}\n")
+            if r > max_sim:
+                max_sim = r
+                sim_doc_name = fname
+
+        return sim_doc_name
 
 
 if __name__ == "__main__":
     vm = VectorModel('assets/articles/processed')
 
-    # vm.generate_weights('assets/articles/vectors')
+    vm.generate_weights('assets/articles/vectors')
 
     vectors = vm.load_vectors('assets/articles/vectors')
 
@@ -181,4 +185,4 @@ if __name__ == "__main__":
 
     query_vector = vm.query_vectorize(processed_query)
 
-    vm.find_similar(vectors, query_vector)
+    print(vm.find_similar(vectors, query_vector))
