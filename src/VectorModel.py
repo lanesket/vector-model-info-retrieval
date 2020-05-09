@@ -24,13 +24,14 @@ class VectorModel:
         """
             Dict with word to its place in the vector
         """
-        # problem
         words = set()
         for file in os.listdir(self.processed_path):
             doc_path = f"{self.processed_path}/{file}"
             with open(doc_path, 'r') as f:
                 text_words = f.readline().split()
                 words = words.union(set(text_words))
+        words = list(words)
+        words.sort()
 
         return dict(zip(words, range(len(words))))
 
@@ -177,7 +178,7 @@ class VectorModel:
 if __name__ == "__main__":
     vm = VectorModel('assets/articles/processed')
 
-    vm.generate_weights('assets/articles/vectors')
+    # vm.generate_weights('assets/articles/vectors')
 
     vectors = vm.load_vectors('assets/articles/vectors')
 
@@ -187,4 +188,4 @@ if __name__ == "__main__":
 
     query_vector = vm.query_vectorize(processed_query)
 
-    print(vm.find_similar(vectors, query_vector, 5))
+    print(vm.find_similar(vectors, query_vector, 1))
