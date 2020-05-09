@@ -1,3 +1,4 @@
+from typing import List
 import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
@@ -5,7 +6,7 @@ from nltk.corpus import stopwords
 
 
 class Preprocessor:
-    def __init__(self, stop_path="../assets/stop-words.txt"):
+    def __init__(self, stop_path="assets/stop-words.txt"):
         self.processed = []
         with open(stop_path, "r") as f:
             self.stop_words = [w.strip("\n") for w in f.readlines()]
@@ -42,9 +43,8 @@ class Preprocessor:
             pt[0] if pt[1] != "VB" else WordNetLemmatizer().lemmatize(pt[0]) for pt in pos_tagged
         ]
 
-    def process(self, raw_text: str):
+    def process(self, raw_text: str) -> List:
         """
-            Takes path to a file and runs all methods on it's contents
             Returns a list of words
         """
         self.raw_text = raw_text
