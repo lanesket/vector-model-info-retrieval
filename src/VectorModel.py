@@ -4,7 +4,6 @@ import math
 import numpy as np
 import re
 from Preprocessor import Preprocessor
-from sklearn.metrics.pairwise import cosine_similarity
 import heapq
 
 
