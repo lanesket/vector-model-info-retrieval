@@ -42,6 +42,7 @@ def main_response():
         query = " ".join(terms)
 
     if use_index:
+        query = " ".join(p.process(query))
         res = vm.find_similar_with_index(vectors, query, query_vector)
     else:
         res = vm.find_similar(vectors, query_vector, 10)
