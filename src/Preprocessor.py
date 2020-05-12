@@ -3,7 +3,8 @@ import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
-
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
 
 class Preprocessor:
     def __init__(self, stop_path="assets/stop-words.txt"):
@@ -43,6 +44,15 @@ class Preprocessor:
             pt[0] if pt[1] != "VB" else WordNetLemmatizer().lemmatize(pt[0]) for pt in pos_tagged
         ]
 
+    def stem(self):
+        """
+            Removes needless suffixes and preffixes from the words leaving the stem
+        """
+        ps = PorterStemmer()
+        self.processed = [
+            ps.stem(word) for word in self.processed
+        ]
+
     def process(self, raw_text: str) -> List:
         """
             Returns a list of words
@@ -51,6 +61,7 @@ class Preprocessor:
         self.strip_punctuation()
         self.to_lower()
         self.remove_stop_words()
+        self.stem()
         self.lemmatize_verbs()
 
         return self.processed
@@ -65,4 +76,5 @@ if __name__ == "__main__":
     # nltk.download("stopwords")
 
     p = Preprocessor()
-    print(p.process("../assets/articles/Why we fight about Iran"))
+    with open("/assets/articles/Why we fight about Iran", 'r') as f:
+        print(p.process(f.read()))
