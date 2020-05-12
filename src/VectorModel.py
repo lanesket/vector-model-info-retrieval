@@ -5,7 +5,7 @@ import numpy as np
 import re
 from Preprocessor import Preprocessor
 import heapq
-
+from collections import defaultdict
 
 class VectorModel:
     def __init__(self, processed_path: str):
@@ -18,6 +18,8 @@ class VectorModel:
         self.num_terms = len(self.vector_mapping.keys())
 
         self.tfs, self.dfs = self._generate_tfs_dfs()
+
+        self.inverted_index = defaultdict(list)
 
     def _vector_mapping(self) -> dict:
         """
@@ -180,6 +182,39 @@ class VectorModel:
         return [doc_names[i] for i in indexes]
 
 
+    def create_inverted_index(self, vectors: dict) -> None:
+        """
+            Creates an inverted index as a dictionary { term : list(documents)}
+            and stores it inside the class
+        """
+        for filename, vector in vectors.items():
+            for term, term_pos in self.vector_mapping.items():
+                if vector[term_pos] > 0:
+                    self.inverted_index[term].append(filename)
+
+            # print("Articles releated to America")
+            # for doc in self.inverted_index["america"]:
+                # print(doc)
+
+    def find_similar_with_index(self, vectors: dict, query: str, q_v: np.ndarray) -> List:
+        """
+            Finds all relevant documents using the reversed index and cosine_similarity
+        """
+
+        terms = list(set([w.lower() for w in query.split(" ")]))
+
+        relevant_docs = list(set(
+            [doc for t in terms for doc in self.inverted_index[t]]
+        ))
+
+        sim_results = []
+        for d in relevant_docs:
+            sim_results.append((self.cosine_similarity(vectors[d], q_v), d))
+
+        sim_results = sorted(sim_results, key=lambda t: t[0], reverse=True)
+
+        return [t[1] for t in sim_results]
+
 if __name__ == "__main__":
     vm = VectorModel('assets/articles/processed')
 
@@ -187,10 +222,14 @@ if __name__ == "__main__":
 
     vectors = vm.load_vectors('assets/articles/vectors')
 
+    vm.create_inverted_index(vectors)
     p = Preprocessor("assets/stop-words.txt")
-    query = "Star"
+    query = "america"
     processed_query = p.process(query)
 
     query_vector = vm.query_vectorize(processed_query)
 
-    print(vm.find_similar(vectors, query_vector, 5))
+    # print(vm.find_similar(vectors, query_vector, 5))
+    # print("Index version:")
+    for s in vm.find_similar_with_index(vectors, query, query_vector):
+        print(s)
