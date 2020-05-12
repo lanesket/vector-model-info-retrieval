@@ -1,12 +1,42 @@
-<body>
-    <p>Query:</p>
-    <form method="post">
-        <input type="text" name="query">
-        <input type="submit" value="Search">
-    </form>
-    {% if qres %}
-        {% for r in qres %}
-            <p>{{ r }}!</p>
-        {% endfor %}
-    {% endif %}
-</body>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/cosmo/bootstrap.min.css" rel="stylesheet" integrity="sha384-qdQEsAI45WFCO5QwXBelBe1rR9Nwiss4rGEqiszC+9olH1ScrLrMQr1KmDR964uZ" crossorigin="anonymous">
+    <title>Index</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row" class="">
+        <div>
+          <form method="post" role="form">
+            <div class="form-group">
+              <label for="text" class="m-2">Query</label>
+              <input type="text" name="query" class="form-control" id="text" placeholder="Your query">
+              <p><small>Format: word:weight... Or simply type in your query </small></p>
+            </div>
+            <input type="submit" value="Search" class="btn btn-success">
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        {% if qres %}
+        <ul class="list-group m-4">
+          {% for r in qres %}
+          <li class="list-group-item">
+            <p>
+              {{ r }}
+            </p>
+            <form action="http://localhost:5001/article/{{ r }}" method="post">
+              <input type="submit" value="Read the article" class="btn btn-info"/>
+            </form>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>
